@@ -29,6 +29,9 @@ pip_install () {
 	if [ ! -d "./venv" ]; then
 		# Some distros have venv built into python so this isn't always needed.
 		if is_command 'apt-get'; then
+			apt-get install software-properties-common
+			apt-add-repository universe
+			apt-get update
 			apt-get install python-venv
 		fi
 		python -m venv ./venv
