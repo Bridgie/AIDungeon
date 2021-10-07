@@ -72,7 +72,7 @@ system_package_install() {
 }
 
 install_aid () {
-	version_check
+	# version_check
 	pip_install
 	system_package_install
 }
