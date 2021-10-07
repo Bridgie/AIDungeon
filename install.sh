@@ -10,16 +10,16 @@ MIN_PYTHON_VERS="3.4.0"
 MAX_PYTHON_VERS="3.7.9"
 
 version_check () {
-	MAX_VERS=$(echo -e "$(python3 --version | cut -d' ' -f2)\n$MAX_PYTHON_VERS\n$MIN_PYTHON_VERS"\
+	MAX_VERS=$(echo -e "$(python --version | cut -d' ' -f2)\n$MAX_PYTHON_VERS\n$MIN_PYTHON_VERS"\
 	| sort -V | tail -n1)
-	MIN_VERS=$(echo -e "$(python3 --version | cut -d' ' -f2)\n$MAX_PYTHON_VERS\n$MIN_PYTHON_VERS"\
+	MIN_VERS=$(echo -e "$(python --version | cut -d' ' -f2)\n$MAX_PYTHON_VERS\n$MIN_PYTHON_VERS"\
 	| sort -V | head -n1)
 	if [ "$MIN_VERS" != "$MIN_PYTHON_VERS" ]; then
-		echo "Your installed python version, $(python3 --version), is too old."
+		echo "Your installed python version, $(python --version), is too old."
 		echo "Please update to at least $MIN_PYTHON_VERS."
 		exit 1
 	elif [ "$MAX_VERS" != "$MAX_PYTHON_VERS" ]; then
-		echo "Your installed python version, $(python3 --version), is too new."
+		echo "Your installed python version, $(python --version), is too new."
 		echo "Please install $MAX_PYTHON_VERS."
 		exit 1
 	fi
@@ -29,11 +29,12 @@ pip_install () {
 	if [ ! -d "./venv" ]; then
 		# Some distros have venv built into python so this isn't always needed.
 		if is_command 'apt-get'; then
-			apt-get install python3-venv
+			apt-get install python-venv
 		fi
-		python3 -m venv ./venv
+		python -m venv ./venv
 	fi
-	source "${BASE_DIR}/venv/bin/activate"
+	source "${BASE_DIR}/venv/Scripts/activate"
+	python -m pip install --upgrade pip
 	pip install --upgrade pip setuptools
 	pip install -r "${BASE_DIR}/requirements.txt"
 }
@@ -61,6 +62,8 @@ system_package_install() {
 		$SUDO pacman -S ${PACKAGES[@]}
 	elif is_command 'apk'; then
 		$SUDO apk --update add ${PACKAGES[@]}
+	elif is_command 'choco'; then
+		choco install ${PACKAGES[@]} -y
 	else
 		echo "You do not seem to be using a supported package manager."
 		echo "Please make sure ${PACKAGES[@]} are installed then press [ENTER]"
